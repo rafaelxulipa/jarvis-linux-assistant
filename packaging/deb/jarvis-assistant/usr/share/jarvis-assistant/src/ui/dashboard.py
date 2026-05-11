@@ -130,6 +130,9 @@ class DashboardWidget(QWidget):
     def set_greeting(self, text: str):
         self._greeting_label.setText(text)
 
+    def set_status(self, text: str):
+        self._status_bar.set_status(text)
+
     def _update_battery(self):
         from src.services.system_info import get_battery_info
         bat = get_battery_info()

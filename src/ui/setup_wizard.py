@@ -228,8 +228,9 @@ class SetupWizard(QDialog):
             if name:
                 self._config["user_name"] = name
         elif idx == 2:  # voz
-            self._config["voice_gender"]  = "male" if self._radio_male.isChecked() else "female"
-            self._config["voice_enabled"] = self._check_voice.isChecked()
+            self._config["voice_gender"]       = "male" if self._radio_male.isChecked() else "female"
+            self._config["voice_enabled"]      = self._check_voice.isChecked()
+            self._config["voice_recognition"]  = self._check_voicerec.isChecked()
         elif idx == 3:  # apps
             terminal = self._combo_terminal.currentText()
             browser  = self._combo_browser.currentText()
@@ -314,15 +315,28 @@ class SetupWizard(QDialog):
 
         w.add_spacer(20)
 
-        self._check_voice = QCheckBox("  Habilitar narração por voz")
-        self._check_voice.setChecked(self._config.get("voice_enabled", True))
-        self._check_voice.setFont(QFont("Courier New", 9))
-        self._check_voice.setStyleSheet(f"""
+        checkbox_style = f"""
             QCheckBox {{ color: {COLORS['text_primary']}; background: transparent; }}
             QCheckBox::indicator {{ width: 16px; height: 16px; border: 1px solid {COLORS['border']}; border-radius: 3px; }}
             QCheckBox::indicator:checked {{ background: {COLORS['accent']}; border-color: {COLORS['accent']}; }}
-        """)
+        """
+
+        self._check_voice = QCheckBox("  Narração por voz (JARVIS fala)")
+        self._check_voice.setChecked(self._config.get("voice_enabled", True))
+        self._check_voice.setFont(QFont("Courier New", 9))
+        self._check_voice.setStyleSheet(checkbox_style)
         w.layout().addWidget(self._check_voice)
+
+        w.add_spacer(10)
+
+        self._check_voicerec = QCheckBox("  Reconhecimento de voz — diga \"Jarvis\" para ativar")
+        self._check_voicerec.setChecked(self._config.get("voice_recognition", False))
+        self._check_voicerec.setFont(QFont("Courier New", 9))
+        self._check_voicerec.setStyleSheet(checkbox_style)
+        w.layout().addWidget(self._check_voicerec)
+
+        w.add_spacer(8)
+        w.add_text("Requer microfone e pacote python3-pyaudio instalado.")
         return w
 
     def _page_apps(self) -> QWidget:

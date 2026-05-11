@@ -10,8 +10,8 @@ edge-tts>=6.1.9     # Microsoft Neural TTS — vozes AntonioNeural / FranciscaNe
 gTTS>=2.3.2         # fallback secundário via Google (requer internet)
 
 # Reconhecimento de voz (opcional)
-# SpeechRecognition>=3.10.0
-# PyAudio>=0.2.13
+SpeechRecognition>=3.10.0
+# PyAudio — instalar via apt: sudo apt install python3-pyaudio
 
 # Linux distro detection
 distro>=1.8.0

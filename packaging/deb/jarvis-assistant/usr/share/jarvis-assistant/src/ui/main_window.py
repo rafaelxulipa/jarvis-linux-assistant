@@ -6,12 +6,13 @@ from PyQt6.QtWidgets import QMainWindow, QWidget, QStackedWidget, QVBoxLayout, Q
 from PyQt6.QtCore    import Qt, QTimer, pyqtSlot
 from PyQt6.QtGui     import QPainter, QColor, QBrush, QPen, QFont, QKeySequence, QShortcut
 
-from src.config.settings         import COLORS
-from src.ui.boot_sequence        import BootSequenceWidget
-from src.ui.dashboard            import DashboardWidget
-from src.ui.widgets.hud_elements import ScanlineOverlay, CornerBracket
-from src.services.greeting       import get_greeting_text, get_ready_message
-from src.services.tts_service    import TTSService
+from src.config.settings              import COLORS
+from src.ui.boot_sequence             import BootSequenceWidget
+from src.ui.dashboard                 import DashboardWidget
+from src.ui.widgets.hud_elements      import ScanlineOverlay, CornerBracket
+from src.services.greeting            import get_greeting_text, get_ready_message
+from src.services.tts_service         import TTSService
+from src.services.voice_recognition   import VoiceRecognitionService
 
 
 class JarvisWindow(QMainWindow):
@@ -22,6 +23,10 @@ class JarvisWindow(QMainWindow):
             engine=config.get("tts_engine", "auto"),
             speed=config.get("voice_speed", 1.0),
             voice_gender=config.get("voice_gender", "male"),
+        )
+        self._voice  = VoiceRecognitionService(
+            wake_word=config.get("wake_word", "jarvis"),
+            on_command=self._on_voice_command,
         )
 
         self._setup_window()
@@ -100,6 +105,34 @@ class JarvisWindow(QMainWindow):
         f11.activated.connect(self._toggle_fullscreen)
 
     # ------------------------------------------------------------------ #
+    def _on_voice_command(self, command: str):
+        """Chamado pela thread de reconhecimento de voz — redireciona para a UI thread."""
+        QTimer.singleShot(0, lambda: self._handle_command(command))
+
+    def _handle_command(self, command: str):
+        cmd = command.lower().strip()
+        user = self._config.get("user_name", "")
+
+        if not cmd or cmd == "ativado":
+            self._tts.speak(f"Sim, {user}. Como posso ajudar?")
+            self._dashboard.set_status("OUVINDO...")
+        elif any(w in cmd for w in ["horas", "hora", "tempo", "que horas"]):
+            from datetime import datetime
+            now = datetime.now()
+            self._tts.speak(f"São {now.hour} horas e {now.minute} minutos.")
+        elif any(w in cmd for w in ["fechar", "encerrar", "sair", "desligar"]):
+            self._tts.speak(f"Até logo, {user}.")
+            QTimer.singleShot(2000, self.close)
+        elif any(w in cmd for w in ["olá", "oi", "hey", "bom dia", "boa tarde", "boa noite"]):
+            from src.services.greeting import get_period_greeting
+            self._tts.speak(f"{get_period_greeting()}, {user}!")
+        elif any(w in cmd for w in ["nome", "quem é você", "quem és"]):
+            self._tts.speak("Eu sou o J.A.R.V.I.S, seu assistente pessoal.")
+        else:
+            self._tts.speak(f"Entendido: {command}")
+
+        self._dashboard.set_status("SISTEMA OPERACIONAL")
+
     @pyqtSlot()
     def _on_boot_finished(self):
         self._stack.setCurrentIndex(1)
@@ -107,27 +140,15 @@ class JarvisWindow(QMainWindow):
         greeting = get_greeting_text(user)
         self._dashboard.set_greeting(greeting)
 
-        if self._config.get("voice_enabled", True):
-            from datetime import datetime
-            hour = datetime.now().hour
-            if 5 <= hour < 12:
-                period_key = "morning"
-            elif 12 <= hour < 18:
-                period_key = "afternoon"
-            else:
-                period_key = "night"
+        # Iniciar reconhecimento de voz se disponível
+        if self._config.get("voice_recognition", False) and self._voice.available:
+            self._voice.start()
+            self._dashboard.set_status("RECONHECIMENTO DE VOZ ATIVO")
 
-            # Tenta som pré-gravado; se não existir, sintetiza via TTS
-            from src.config.settings import SOUNDS_DIR
-            import os
-            sound_path = os.path.join(
-                SOUNDS_DIR, f"{period_key}_{self._config.get('voice_gender','male')}.mp3"
-            )
-            if os.path.exists(sound_path):
-                self._tts.play_sound(period_key)
-            else:
-                full_text = greeting + " " + get_ready_message(user)
-                self._tts.speak(full_text)
+        if self._config.get("voice_enabled", True):
+            # Sempre sintetiza a frase completa com nome e hora do usuário
+            full_text = greeting + " " + get_ready_message(user)
+            self._tts.speak(full_text)
 
     def _toggle_fullscreen(self):
         if self.isFullScreen():
@@ -147,6 +168,7 @@ class JarvisWindow(QMainWindow):
 
     def closeEvent(self, event):
         self._tts.stop()
+        self._voice.stop()
         event.accept()
 
 

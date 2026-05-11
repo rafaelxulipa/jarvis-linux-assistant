@@ -20,7 +20,10 @@ SYS_PYTHON=$(command -v python3 || command -v python3.8 || command -v python3.9 
 
 # Instalar dependências Python para o python3 do sistema
 "$SYS_PYTHON" -m pip install --quiet \
-    PyQt6 psutil distro gTTS "edge-tts>=6.1.9" 2>/dev/null || true
+    PyQt6 psutil distro gTTS "edge-tts>=6.1.9" SpeechRecognition 2>/dev/null || true
+
+# PyAudio via apt (mais confiável que pip para Ubuntu)
+apt-get install -y python3-pyaudio -qq 2>/dev/null || true
 
 # Criar config do usuário se não existir
 USER_CONFIG="$REAL_HOME/.config/jarvis-assistant/jarvis.json"
