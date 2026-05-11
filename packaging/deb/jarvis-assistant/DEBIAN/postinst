@@ -12,10 +12,14 @@ else
     REAL_HOME="$HOME"
 fi
 
-# Instalar dependências Python (compatível com Ubuntu 23+ / PEP 668)
-pip3 install --quiet --break-system-packages psutil gTTS distro "edge-tts>=6.1.9" 2>/dev/null \
-    || pip3 install --quiet psutil gTTS distro "edge-tts>=6.1.9" 2>/dev/null \
-    || true
+# Instalar dependências Python via pip (compatível com Ubuntu 20.04+ e PEP 668)
+# PyQt6 não está nos repos do Ubuntu 20.04 — instalar via pip obrigatoriamente
+_pip_install() {
+    pip3 install --quiet --break-system-packages "$@" 2>/dev/null \
+        || pip3 install --quiet "$@" 2>/dev/null \
+        || true
+}
+_pip_install PyQt6 psutil distro gTTS "edge-tts>=6.1.9"
 
 # Criar config do usuário se não existir
 USER_CONFIG="$REAL_HOME/.config/jarvis-assistant/jarvis.json"

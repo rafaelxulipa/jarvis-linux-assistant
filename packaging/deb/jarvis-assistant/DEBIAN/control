@@ -3,8 +3,8 @@ Version: 3.0.0
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3 (>= 3.10), python3-pip, python3-pyqt6, python3-psutil, python3-distro, espeak-ng, mpg123
-Recommends: piper
+Depends: python3 (>= 3.8), python3-pip, espeak-ng, mpg123
+Recommends: python3-pyqt6, python3-psutil, python3-distro, piper
 Maintainer: Otávio Melo <otavio.melo@meisters.solutions>
 Homepage: https://github.com/otaviomelo/jarvis-linux-assistant
 Installed-Size: 580
@@ -13,4 +13,4 @@ Description: J.A.R.V.I.S Linux Assistant
  Interface HUD futurista com relógio neon, métricas do sistema em tempo real,
  detecção de ferramentas de desenvolvimento e saudação por voz TTS.
  .
- Compatível com Ubuntu 22.04+, Zorin OS 16+, Linux Mint 21+ e Debian 12+.
+ Compatível com Ubuntu 20.04+, Zorin OS 16+, Linux Mint 20+ e Debian 11+.
