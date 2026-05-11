@@ -25,8 +25,6 @@ def _is_first_run(config: dict) -> bool:
 
 
 def main():
-    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
-
     app = QApplication(sys.argv)
     app.setApplicationName("JARVIS Linux Assistant")
     app.setOrganizationName("JarvisAI")
@@ -47,8 +45,7 @@ def main():
         config = load_config()
 
     window = JarvisWindow(config)
-    window.show()
-    window.showFullScreen()
+    window.showMaximized()
 
     sys.exit(app.exec())
 

@@ -1,6 +1,7 @@
 """
 Painel de ações rápidas do modo desenvolvedor.
 """
+from __future__ import annotations
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
     QLabel, QGridLayout, QScrollArea, QTextEdit,

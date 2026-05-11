@@ -2,6 +2,7 @@
 Assistente de configuração — aparece na primeira execução.
 Pergunta nome, gênero da voz e apps preferidos.
 """
+from __future__ import annotations
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QButtonGroup, QRadioButton, QWidget, QComboBox,

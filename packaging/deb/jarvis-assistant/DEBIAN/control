@@ -7,7 +7,7 @@ Depends: python3 (>= 3.8), python3-pip, espeak-ng, mpg123
 Recommends: python3-pyqt6, python3-psutil, python3-distro, piper
 Maintainer: Otávio Melo <otavio.melo@meisters.solutions>
 Homepage: https://github.com/otaviomelo/jarvis-linux-assistant
-Installed-Size: 632
+Installed-Size: 664
 Description: J.A.R.V.I.S Linux Assistant
  Assistente pessoal sci-fi para Linux inspirado no JARVIS do Homem de Ferro.
  Interface HUD futurista com relógio neon, métricas do sistema em tempo real,

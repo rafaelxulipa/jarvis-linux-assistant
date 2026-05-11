@@ -82,12 +82,15 @@ else
     echo -e "  Mantendo nome padrão. Edite ${CYAN}config/jarvis.json${NC} depois."
 fi
 
-# ── 6. Autostart ────────────────────────────────────────
-echo -e "${CYAN}[6/7]${NC} Configurando inicialização automática..."
-mkdir -p "$AUTOSTART_DIR"
-PYTHON_BIN="$VENV_DIR/bin/python3"
+# ── 6. Autostart (opcional) ─────────────────────────────
+echo -e "${CYAN}[6/7]${NC} Inicialização automática com o sistema..."
+echo -n "  Iniciar o JARVIS automaticamente ao ligar o PC? [s/N]: "
+read ENABLE_AUTOSTART
 
-cat > "$AUTOSTART_DIR/jarvis-assistant.desktop" <<EOF
+if [[ "$ENABLE_AUTOSTART" =~ ^[Ss]$ ]]; then
+    mkdir -p "$AUTOSTART_DIR"
+    PYTHON_BIN="$VENV_DIR/bin/python3"
+    cat > "$AUTOSTART_DIR/jarvis-assistant.desktop" <<EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
@@ -101,9 +104,11 @@ StartupNotify=false
 X-GNOME-Autostart-enabled=true
 X-GNOME-Autostart-Delay=5
 EOF
-
-chmod +x "$AUTOSTART_DIR/jarvis-assistant.desktop"
-echo -e "${GREEN}  ✔ Autostart configurado${NC}"
+    chmod +x "$AUTOSTART_DIR/jarvis-assistant.desktop"
+    echo -e "${GREEN}  ✔ Autostart ativado${NC}"
+else
+    echo -e "  Autostart desativado."
+fi
 
 # ── 7. Comando de execução ──────────────────────────────
 echo -e "${CYAN}[7/7]${NC} Criando comando 'jarvis'..."
@@ -172,6 +177,6 @@ echo ""
 echo -e "  ${CYAN}Executar agora:${NC}  bash $LAUNCHER"
 echo -e "  ${CYAN}Ou (novo terminal):${NC}  jarvis"
 echo -e "  ${CYAN}Configuração:${NC}    $CONFIG_FILE"
-echo -e "  ${CYAN}Autostart:${NC}       ativo (inicia com o sistema)"
+echo -e "  ${CYAN}Autostart:${NC}       conforme escolhido na instalação"
 echo -e "${CYAN}══════════════════════════════════════════════════════${NC}"
 echo ""

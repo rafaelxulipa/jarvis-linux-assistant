@@ -28,7 +28,7 @@ DEFAULT_CONFIG = {
     "secondary_color": "#0066ff",
     "theme": "dark",
     "first_run": True,
-    "autostart": True,
+    "autostart": False,
     "boot_sounds": True,
     "update_interval_ms": 2000,
 }

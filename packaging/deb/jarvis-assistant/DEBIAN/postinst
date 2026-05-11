@@ -34,28 +34,6 @@ if [ ! -f "$USER_CONFIG" ]; then
     fi
 fi
 
-# Configurar autostart para o usuário real
-AUTOSTART_DIR="$REAL_HOME/.config/autostart"
-mkdir -p "$AUTOSTART_DIR"
-
-cat > "$AUTOSTART_DIR/jarvis-assistant.desktop" <<EOF
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=JARVIS Linux Assistant
-Comment=Personal AI Development Assistant
-Exec=/usr/bin/jarvis-assistant
-Icon=jarvis-assistant
-Terminal=false
-Categories=Utility;System;
-StartupNotify=false
-X-GNOME-Autostart-enabled=true
-X-GNOME-Autostart-Delay=5
-EOF
-
-if [ -n "$SUDO_USER" ]; then
-    chown -R "$SUDO_USER:$(id -gn "$SUDO_USER")" "$AUTOSTART_DIR"
-fi
 
 # Instalar ícones no tema freedesktop
 for size in 16 24 32 48 64 128 256; do
@@ -75,8 +53,4 @@ echo "╚═══════════════════════�
 echo ""
 echo "  Executar:   jarvis-assistant"
 echo "  Config:     $USER_CONFIG"
-echo "  Autostart:  ativo (inicia com o sistema)"
-echo ""
-echo "  Para personalizar seu nome, edite:"
-echo "  $USER_CONFIG"
 echo ""

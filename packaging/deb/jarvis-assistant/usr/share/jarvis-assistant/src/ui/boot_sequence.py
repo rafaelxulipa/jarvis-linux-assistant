@@ -1,6 +1,7 @@
 """
 Tela de boot cinematográfico — animação de inicialização estilo JARVIS.
 """
+from __future__ import annotations
 import random
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QProgressBar
 from PyQt6.QtCore    import Qt, QTimer, pyqtSignal

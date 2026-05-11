@@ -6,6 +6,7 @@ Vozes padrão (edge-tts, Microsoft Neural):
   male:   pt-BR-AntonioNeural
   female: pt-BR-FranciscaNeural
 """
+from __future__ import annotations
 import asyncio
 import os
 import shutil

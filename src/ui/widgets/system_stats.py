@@ -1,6 +1,7 @@
 """
 Painel de estatísticas do sistema em tempo real.
 """
+from __future__ import annotations
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QGridLayout
 from PyQt6.QtCore    import Qt, QTimer
 from PyQt6.QtGui     import QFont

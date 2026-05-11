@@ -1,6 +1,7 @@
 """
 Widgets de decoração e efeitos visuais estilo HUD/JARVIS.
 """
+from __future__ import annotations
 import math
 from PyQt6.QtWidgets import QWidget, QLabel
 from PyQt6.QtCore    import Qt, QTimer, QPointF, QRectF, pyqtSignal
