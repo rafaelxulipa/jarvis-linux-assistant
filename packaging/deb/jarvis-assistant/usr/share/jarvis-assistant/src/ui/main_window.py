@@ -12,7 +12,6 @@ from src.ui.dashboard                 import DashboardWidget
 from src.ui.widgets.hud_elements      import ScanlineOverlay, CornerBracket
 from src.services.greeting            import get_greeting_text, get_ready_message
 from src.services.tts_service         import TTSService
-from src.services.voice_recognition   import VoiceRecognitionService
 
 
 class JarvisWindow(QMainWindow):
@@ -23,10 +22,6 @@ class JarvisWindow(QMainWindow):
             engine=config.get("tts_engine", "auto"),
             speed=config.get("voice_speed", 1.0),
             voice_gender=config.get("voice_gender", "male"),
-        )
-        self._voice  = VoiceRecognitionService(
-            wake_word=config.get("wake_word", "jarvis"),
-            on_command=self._on_voice_command,
         )
 
         self._setup_window()
@@ -87,6 +82,7 @@ class JarvisWindow(QMainWindow):
 
         # Wire boot → dashboard transition
         self._boot.boot_finished.connect(self._on_boot_finished)
+        self._dashboard.command_submitted.connect(self._handle_command)
 
     def _add_corner_brackets(self, parent: QWidget):
         size = 28
@@ -105,10 +101,6 @@ class JarvisWindow(QMainWindow):
         f11.activated.connect(self._toggle_fullscreen)
 
     # ------------------------------------------------------------------ #
-    def _on_voice_command(self, command: str):
-        """Chamado pela thread de reconhecimento de voz — redireciona para a UI thread."""
-        QTimer.singleShot(0, lambda: self._handle_command(command))
-
     def _handle_command(self, command: str):
         cmd = command.lower().strip()
         user = self._config.get("user_name", "")
@@ -140,11 +132,6 @@ class JarvisWindow(QMainWindow):
         greeting = get_greeting_text(user)
         self._dashboard.set_greeting(greeting)
 
-        # Iniciar reconhecimento de voz se disponível
-        if self._config.get("voice_recognition", False) and self._voice.available:
-            self._voice.start()
-            self._dashboard.set_status("RECONHECIMENTO DE VOZ ATIVO")
-
         if self._config.get("voice_enabled", True):
             # Sempre sintetiza a frase completa com nome e hora do usuário
             full_text = greeting + " " + get_ready_message(user)
@@ -168,7 +155,6 @@ class JarvisWindow(QMainWindow):
 
     def closeEvent(self, event):
         self._tts.stop()
-        self._voice.stop()
         event.accept()
 
 
@@ -230,6 +216,7 @@ class _BottomBar(QWidget):
         hints = [
             "[ESC] Fechar",
             "[F11] Tela cheia",
+            "[ENTER] Enviar comando",
         ]
 
         for hint in hints:

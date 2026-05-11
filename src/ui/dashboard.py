@@ -3,7 +3,7 @@ Dashboard principal — layout HUD com relógio, stats, dev tools e ações.
 """
 from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QVBoxLayout, QLabel,
-    QScrollArea, QFrame, QSizePolicy,
+    QScrollArea, QFrame, QSizePolicy, QLineEdit,
 )
 from PyQt6.QtCore  import Qt, QTimer, pyqtSignal
 from PyQt6.QtGui   import QFont, QColor, QPainter, QPen, QBrush, QLinearGradient
@@ -27,6 +27,8 @@ def _divider(vertical: bool = False) -> QFrame:
 
 
 class DashboardWidget(QWidget):
+    command_submitted = pyqtSignal(str)
+
     def __init__(self, config: dict, parent=None):
         super().__init__(parent)
         self._config = config
@@ -108,6 +110,11 @@ class DashboardWidget(QWidget):
 
         layout.addStretch()
 
+        # Command input
+        self._cmd_input = _CommandInput()
+        self._cmd_input.command_submitted.connect(self.command_submitted)
+        layout.addWidget(self._cmd_input)
+
         # Status bar
         self._status_bar = _StatusBar()
         layout.addWidget(self._status_bar)
@@ -165,6 +172,48 @@ class _StatusBar(QWidget):
 
     def set_status(self, text: str):
         self._lbl.setText(text)
+
+
+class _CommandInput(QWidget):
+    command_submitted = pyqtSignal(str)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 8, 0, 8)
+        layout.setSpacing(8)
+
+        prompt = QLabel(">_")
+        prompt.setFont(QFont("Courier New", 10, QFont.Weight.Bold))
+        prompt.setStyleSheet(f"color: {COLORS['accent']}; background: transparent;")
+        layout.addWidget(prompt)
+
+        self._field = QLineEdit()
+        self._field.setPlaceholderText("Digite um comando...")
+        self._field.setFont(QFont("Courier New", 10))
+        self._field.setStyleSheet(
+            f"QLineEdit {{"
+            f"  background: rgba(0,0,0,0.4);"
+            f"  color: {COLORS['text_primary']};"
+            f"  border: 1px solid {COLORS['border']};"
+            f"  border-radius: 2px;"
+            f"  padding: 4px 8px;"
+            f"  letter-spacing: 1px;"
+            f"}}"
+            f"QLineEdit:focus {{"
+            f"  border: 1px solid {COLORS['accent']};"
+            f"}}"
+        )
+        self._field.returnPressed.connect(self._submit)
+        layout.addWidget(self._field)
+
+    def _submit(self):
+        text = self._field.text().strip()
+        if text:
+            self.command_submitted.emit(text)
+            self._field.clear()
 
 
 class _PulseDot(QWidget):
