@@ -12,14 +12,15 @@ else
     REAL_HOME="$HOME"
 fi
 
-# Instalar dependências Python via pip (compatível com Ubuntu 20.04+ e PEP 668)
-# PyQt6 não está nos repos do Ubuntu 20.04 — instalar via pip obrigatoriamente
-_pip_install() {
-    pip3 install --quiet --break-system-packages "$@" 2>/dev/null \
-        || pip3 install --quiet "$@" 2>/dev/null \
-        || true
-}
-_pip_install PyQt6 psutil distro gTTS "edge-tts>=6.1.9"
+# Usar o python3 do sistema (não pip3 do usuário, que pode ser de outra versão)
+SYS_PYTHON=$(command -v python3 || command -v python3.8 || command -v python3.9 || command -v python3.10)
+
+# Atualizar pip do sistema antes — pip antigo (Ubuntu 20.04 tem pip 20) não instala PyQt6
+"$SYS_PYTHON" -m pip install --upgrade pip --quiet 2>/dev/null || true
+
+# Instalar dependências Python para o python3 do sistema
+"$SYS_PYTHON" -m pip install --quiet \
+    PyQt6 psutil distro gTTS "edge-tts>=6.1.9" 2>/dev/null || true
 
 # Criar config do usuário se não existir
 USER_CONFIG="$REAL_HOME/.config/jarvis-assistant/jarvis.json"

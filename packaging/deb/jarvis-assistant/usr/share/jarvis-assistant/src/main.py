@@ -12,22 +12,39 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore    import Qt, QCoreApplication
 from PyQt6.QtGui     import QIcon
 
-from src.config.settings import load_config, BASE_DIR
+from src.config.settings import load_config, save_config, BASE_DIR, CONFIG_FILE
 from src.ui.main_window  import JarvisWindow
+from src.ui.setup_wizard import SetupWizard
+
+
+def _is_first_run(config: dict) -> bool:
+    """Primeira execução: flag explícita ou config ainda não foi personalizado."""
+    if config.get("first_run", True):
+        return True
+    return False
 
 
 def main():
-    # High DPI support
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps)
 
     app = QApplication(sys.argv)
     app.setApplicationName("JARVIS Linux Assistant")
     app.setOrganizationName("JarvisAI")
-
-    # Dark application palette (fallback)
     app.setStyle("Fusion")
 
     config = load_config()
+
+    # Abrir wizard de configuração na primeira execução
+    if _is_first_run(config):
+        wizard = SetupWizard(config)
+        result = wizard.exec()
+        if result != SetupWizard.DialogCode.Accepted:
+            # Usuário fechou o wizard — salvar mesmo assim para não perguntar de novo
+            pass
+        config["first_run"] = False
+        save_config(config)
+        # Recarregar para pegar valores salvos
+        config = load_config()
 
     window = JarvisWindow(config)
     window.show()

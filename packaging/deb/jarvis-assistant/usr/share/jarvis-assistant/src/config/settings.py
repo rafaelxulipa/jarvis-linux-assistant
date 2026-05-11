@@ -27,6 +27,7 @@ DEFAULT_CONFIG = {
     "accent_color": "#00d4ff",
     "secondary_color": "#0066ff",
     "theme": "dark",
+    "first_run": True,
     "autostart": True,
     "boot_sounds": True,
     "update_interval_ms": 2000,
