@@ -1,5 +1,17 @@
 #!/bin/bash
-# Remove autostart ao desinstalar
-for dir in /home/*/.config/autostart "$HOME/.config/autostart"; do
-    rm -f "$dir/jarvis-assistant.desktop" 2>/dev/null || true
+# Remove autostart e config ao desinstalar
+
+# Autostart do usuário que está desinstalando
+if [ -n "$SUDO_USER" ]; then
+    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+else
+    REAL_HOME="$HOME"
+fi
+
+rm -f "$REAL_HOME/.config/autostart/jarvis-assistant.desktop" 2>/dev/null || true
+
+# Remover ícones do tema
+for size in 16 24 32 48 64 128 256; do
+    rm -f "/usr/share/icons/hicolor/${size}x${size}/apps/jarvis-assistant.png" 2>/dev/null || true
 done
+gtk-update-icon-cache /usr/share/icons/hicolor 2>/dev/null || true

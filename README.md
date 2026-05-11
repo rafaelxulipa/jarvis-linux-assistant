@@ -79,12 +79,13 @@ chmod +x install.sh
 ```
 
 O script:
-1. Instala dependências do sistema (PyQt6, espeak-ng, etc.)
+1. Instala dependências do sistema (PyQt6, espeak-ng, mpg123, etc.)
 2. Cria um ambiente virtual Python em `.venv/`
 3. Instala dependências Python
 4. Pergunta seu nome para personalizar a saudação
-5. Configura autostart (`~/.config/autostart/jarvis.desktop`)
+5. Configura autostart (`~/.config/autostart/jarvis-assistant.desktop`)
 6. Cria o comando `jarvis` em `~/.local/bin/`
+7. Oferece instalar o Piper TTS opcionalmente
 
 ---
 
@@ -93,7 +94,7 @@ O script:
 ```bash
 # Dependências do sistema
 sudo apt update
-sudo apt install python3 python3-pip python3-venv python3-pyqt6 espeak-ng mpg123
+sudo apt install python3 python3-pip python3-venv python3-pyqt6 python3-psutil python3-distro espeak-ng mpg123
 
 # Ambiente virtual
 python3 -m venv .venv --system-site-packages
@@ -108,13 +109,24 @@ python3 src/main.py
 
 ## TTS — Voz
 
-O sistema usa três engines em cascata (da melhor para a pior qualidade):
+O sistema usa uma cascata automática de engines. Sons pré-gravados (masculino e feminino) são tocados direto do disco; para frases dinâmicas a síntese segue a ordem:
 
-| Engine | Qualidade | Requer |
-|---|---|---|
-| **Piper** | ★★★★★ | Instalação separada |
-| **espeak-ng** | ★★★☆☆ | `sudo apt install espeak-ng` |
-| **gTTS** | ★★★★☆ | Internet + `mpg123` |
+| Prioridade | Engine | Qualidade | Requer |
+|---|---|---|---|
+| 1 | **Sons pré-gravados** | ★★★★★ | Incluídos no pacote (offline) |
+| 2 | **Piper** | ★★★★★ | Instalação separada (offline) |
+| 3 | **Edge TTS** | ★★★★☆ | `edge-tts` + internet (padrão) |
+| 4 | **espeak-ng** | ★★☆☆☆ | `sudo apt install espeak-ng` (offline) |
+| 5 | **gTTS** | ★★★☆☆ | `gTTS` + internet |
+
+**Vozes padrão (Edge TTS / Microsoft Neural):**
+- Masculino: `pt-BR-AntonioNeural`
+- Feminino: `pt-BR-FranciscaNeural`
+
+Para trocar o gênero, edite `config/jarvis.json`:
+```json
+"voice_gender": "female"
+```
 
 ### Instalar Piper (recomendado)
 
@@ -135,7 +147,8 @@ mkdir -p ~/.local/share/piper
 
 ## Configuração
 
-Edite `config/jarvis.json`:
+**Instalação via `.deb`:** edite `~/.config/jarvis-assistant/jarvis.json`  
+**Instalação via `install.sh`:** edite `config/jarvis.json` na pasta do projeto
 
 ```json
 {
@@ -166,20 +179,26 @@ Edite `config/jarvis.json`:
 O autostart é configurado automaticamente pelo instalador em:
 
 ```
-~/.config/autostart/jarvis.desktop
+~/.config/autostart/jarvis-assistant.desktop
 ```
 
 Para **desativar** o autostart:
 
 ```bash
-rm ~/.config/autostart/jarvis.desktop
+rm ~/.config/autostart/jarvis-assistant.desktop
 ```
 
-Para **reativar**:
+Para **reativar** (instalação `.deb`):
 
 ```bash
-cp jarvis.desktop ~/.config/autostart/
-# Edite o caminho Exec= no arquivo
+cp /usr/share/applications/jarvis-assistant.desktop ~/.config/autostart/
+```
+
+Para **reativar** (instalação via `install.sh`):
+
+```bash
+# Re-execute o instalador, ou crie manualmente:
+cp jarvis.desktop ~/.config/autostart/jarvis-assistant.desktop
 ```
 
 ---
@@ -217,12 +236,15 @@ jarvis-linux-assistant/
 │   └── config/
 │       └── settings.py           # Cores, fontes, config
 ├── assets/
-│   ├── fonts/
-│   ├── icons/
-│   └── images/
+│   ├── icons/                    # Ícones PNG (16–512px) + ICO
+│   └── images/                   # Preview e imagens do README
 ├── sounds/
 ├── config/
-│   └── jarvis.json               # Configuração do usuário
+│   └── jarvis.json               # Configuração padrão
+├── packaging/
+│   ├── build-deb.sh              # Gera o pacote .deb
+│   ├── generate_icons.py         # Gera ícones e imagens
+│   └── deb/                      # Estrutura interna do .deb
 ├── requirements.txt
 ├── install.sh
 └── jarvis.desktop
@@ -286,7 +308,7 @@ espeak-ng -v pt "Olá mundo"
 
 **Erro de permissão no autostart:**
 ```bash
-chmod +x ~/.config/autostart/jarvis.desktop
+chmod +x ~/.config/autostart/jarvis-assistant.desktop
 ```
 
 **Tela preta / sem janela:**

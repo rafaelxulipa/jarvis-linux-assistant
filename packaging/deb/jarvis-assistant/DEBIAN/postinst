@@ -3,25 +3,36 @@ set -e
 
 INSTALL_DIR="/usr/share/jarvis-assistant"
 
-# Instalar dependências Python ausentes
-pip3 install --quiet psutil gTTS distro 2>/dev/null || true
+# Detectar usuário real (não root)
+if [ -n "$SUDO_USER" ]; then
+    REAL_USER="$SUDO_USER"
+    REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+else
+    REAL_USER="$USER"
+    REAL_HOME="$HOME"
+fi
+
+# Instalar dependências Python (compatível com Ubuntu 23+ / PEP 668)
+pip3 install --quiet --break-system-packages psutil gTTS distro "edge-tts>=6.1.9" 2>/dev/null \
+    || pip3 install --quiet psutil gTTS distro "edge-tts>=6.1.9" 2>/dev/null \
+    || true
 
 # Criar config do usuário se não existir
-USER_CONFIG="$HOME/.config/jarvis-assistant/jarvis.json"
+USER_CONFIG="$REAL_HOME/.config/jarvis-assistant/jarvis.json"
 if [ ! -f "$USER_CONFIG" ]; then
     mkdir -p "$(dirname "$USER_CONFIG")"
     cp "$INSTALL_DIR/config/jarvis.json" "$USER_CONFIG"
+    # Ajustar dono do arquivo
+    if [ -n "$SUDO_USER" ]; then
+        chown "$SUDO_USER:$(id -gn "$SUDO_USER")" "$USER_CONFIG"
+        chown "$SUDO_USER:$(id -gn "$SUDO_USER")" "$(dirname "$USER_CONFIG")"
+    fi
 fi
 
-# Configurar autostart para o usuário atual
-if [ -n "$SUDO_USER" ]; then
-    USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-    AUTOSTART_DIR="$USER_HOME/.config/autostart"
-else
-    AUTOSTART_DIR="$HOME/.config/autostart"
-fi
-
+# Configurar autostart para o usuário real
+AUTOSTART_DIR="$REAL_HOME/.config/autostart"
 mkdir -p "$AUTOSTART_DIR"
+
 cat > "$AUTOSTART_DIR/jarvis-assistant.desktop" <<EOF
 [Desktop Entry]
 Version=1.0
@@ -29,6 +40,7 @@ Type=Application
 Name=JARVIS Linux Assistant
 Comment=Personal AI Development Assistant
 Exec=/usr/bin/jarvis-assistant
+Icon=jarvis-assistant
 Terminal=false
 Categories=Utility;System;
 StartupNotify=false
@@ -36,6 +48,30 @@ X-GNOME-Autostart-enabled=true
 X-GNOME-Autostart-Delay=5
 EOF
 
-echo "J.A.R.V.I.S instalado com sucesso!"
-echo "Execute: jarvis-assistant"
-echo "Autostart configurado para iniciar com o sistema."
+if [ -n "$SUDO_USER" ]; then
+    chown -R "$SUDO_USER:$(id -gn "$SUDO_USER")" "$AUTOSTART_DIR"
+fi
+
+# Instalar ícones no tema freedesktop
+for size in 16 24 32 48 64 128 256; do
+    ICON_SRC="$INSTALL_DIR/assets/icons/jarvis_${size}.png"
+    ICON_DST="/usr/share/icons/hicolor/${size}x${size}/apps"
+    if [ -f "$ICON_SRC" ]; then
+        mkdir -p "$ICON_DST"
+        cp "$ICON_SRC" "$ICON_DST/jarvis-assistant.png"
+    fi
+done
+gtk-update-icon-cache /usr/share/icons/hicolor 2>/dev/null || true
+
+echo ""
+echo "╔══════════════════════════════════════════════╗"
+echo "║   J.A.R.V.I.S instalado com sucesso!        ║"
+echo "╚══════════════════════════════════════════════╝"
+echo ""
+echo "  Executar:   jarvis-assistant"
+echo "  Config:     $USER_CONFIG"
+echo "  Autostart:  ativo (inicia com o sistema)"
+echo ""
+echo "  Para personalizar seu nome, edite:"
+echo "  $USER_CONFIG"
+echo ""

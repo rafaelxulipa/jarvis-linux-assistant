@@ -3,13 +3,26 @@
 import sys
 import os
 
-sys.path.insert(0, "/usr/share/jarvis-assistant")
+INSTALL_DIR = "/usr/share/jarvis-assistant"
+sys.path.insert(0, INSTALL_DIR)
 
-# Redirecionar config para ~/.config/jarvis-assistant/
 import src.config.settings as _s
-_user_cfg = os.path.expanduser("~/.config/jarvis-assistant/jarvis.json")
+
+# Config do usuário em ~/.config/jarvis-assistant/ tem prioridade
+_user_cfg = os.path.join(os.path.expanduser("~"), ".config", "jarvis-assistant", "jarvis.json")
 if os.path.exists(_user_cfg):
     _s.CONFIG_FILE = _user_cfg
+else:
+    # Primeira execução: criar config do usuário a partir do padrão
+    import json, shutil
+    os.makedirs(os.path.dirname(_user_cfg), exist_ok=True)
+    shutil.copy(os.path.join(INSTALL_DIR, "config", "jarvis.json"), _user_cfg)
+    _s.CONFIG_FILE = _user_cfg
+
+# Apontar BASE_DIR para o diretório de instalação (assets, sounds)
+_s.BASE_DIR    = INSTALL_DIR
+_s.ASSETS_DIR  = os.path.join(INSTALL_DIR, "assets")
+_s.SOUNDS_DIR  = os.path.join(INSTALL_DIR, "sounds")
 
 from src.main import main
 main()
