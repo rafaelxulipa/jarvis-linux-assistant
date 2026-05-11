@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+
+INSTALL_DIR="/usr/share/jarvis-assistant"
+
+# Instalar dependências Python ausentes
+pip3 install --quiet psutil gTTS distro 2>/dev/null || true
+
+# Criar config do usuário se não existir
+USER_CONFIG="$HOME/.config/jarvis-assistant/jarvis.json"
+if [ ! -f "$USER_CONFIG" ]; then
+    mkdir -p "$(dirname "$USER_CONFIG")"
+    cp "$INSTALL_DIR/config/jarvis.json" "$USER_CONFIG"
+fi
+
+# Configurar autostart para o usuário atual
+if [ -n "$SUDO_USER" ]; then
+    USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    AUTOSTART_DIR="$USER_HOME/.config/autostart"
+else
+    AUTOSTART_DIR="$HOME/.config/autostart"
+fi
+
+mkdir -p "$AUTOSTART_DIR"
+cat > "$AUTOSTART_DIR/jarvis-assistant.desktop" <<EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JARVIS Linux Assistant
+Comment=Personal AI Development Assistant
+Exec=/usr/bin/jarvis-assistant
+Terminal=false
+Categories=Utility;System;
+StartupNotify=false
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5
+EOF
+
+echo "J.A.R.V.I.S instalado com sucesso!"
+echo "Execute: jarvis-assistant"
+echo "Autostart configurado para iniciar com o sistema."

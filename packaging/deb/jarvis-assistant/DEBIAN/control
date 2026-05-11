@@ -1,0 +1,15 @@
+Package: jarvis-assistant
+Version: 3.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.10), python3-pip, python3-pyqt6, espeak-ng, mpg123
+Recommends: python3-psutil, python3-distro
+Maintainer: Otávio Melo <otavio.melo@meisters.solutions>
+Homepage: https://github.com/otaviomelo/jarvis-linux-assistant
+Description: J.A.R.V.I.S Linux Assistant
+ Assistente pessoal sci-fi para Linux inspirado no JARVIS do Homem de Ferro.
+ Interface HUD futurista com relógio neon, métricas do sistema em tempo real,
+ detecção de ferramentas de desenvolvimento e saudação por voz TTS.
+ .
+ Compatível com Ubuntu, Zorin OS e Linux Mint.

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=JARVIS Linux Assistant
+GenericName=AI Assistant
+Comment=Personal AI Development Assistant
+Exec=/usr/bin/jarvis-assistant
+Icon=jarvis-assistant
+Terminal=false
+Categories=Utility;System;Science;
+Keywords=jarvis;assistant;hud;developer;ai;
+StartupNotify=true

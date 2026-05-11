@@ -1,0 +1,21 @@
+# Core UI
+PyQt6>=6.5.0
+
+# System monitoring
+psutil>=5.9.0
+
+# TTS engines (escolha um ou instale todos)
+# piper-tts  — recomendado (instalar separado, ver install.sh)
+gTTS>=2.3.2         # fallback TTS via Google (requer internet)
+# pyttsx3>=2.90     # fallback offline alternativo
+
+# Reconhecimento de voz (opcional)
+# SpeechRecognition>=3.10.0
+# PyAudio>=0.2.13
+
+# Linux distro detection
+distro>=1.8.0
+
+# Extras opcionais
+# openai>=1.0.0     # integração futura com GPT
+# requests>=2.31.0  # clima / notícias

@@ -1,0 +1,5 @@
+#!/bin/bash
+# Remove autostart ao desinstalar
+for dir in /home/*/.config/autostart "$HOME/.config/autostart"; do
+    rm -f "$dir/jarvis-assistant.desktop" 2>/dev/null || true
+done

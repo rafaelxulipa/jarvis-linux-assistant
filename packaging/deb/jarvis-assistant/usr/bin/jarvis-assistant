@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Launcher instalado em /usr/bin/jarvis-assistant"""
+import sys
+import os
+
+sys.path.insert(0, "/usr/share/jarvis-assistant")
+
+# Redirecionar config para ~/.config/jarvis-assistant/
+import src.config.settings as _s
+_user_cfg = os.path.expanduser("~/.config/jarvis-assistant/jarvis.json")
+if os.path.exists(_user_cfg):
+    _s.CONFIG_FILE = _user_cfg
+
+from src.main import main
+main()
